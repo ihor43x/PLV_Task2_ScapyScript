@@ -1,0 +1,23 @@
+Create a python module that can be used for sending or sniffing (capturing) packets on an interface.
+For traffic send/capture use the "scapy" module.
+
+Requirements:
+  1. Python module that could be used as a script from CLI. E.g.: python your_module.py eth0 send
+  2. OOP
+  3. Implement the following interface:
+  class Port:
+    def send_icmp(*a, **kw) -> bool
+    def capture(*a, **kw) -> list
+  4. Each class instance represents one port. E.g.: p1 = Port('lo'); p2 = Port('eth0')
+  5. Sending only one type of traffic ICMP echo request is enough
+  6. Allow sending on two ports. E.g.: python your_script.py eth0,eth1 send
+  7. Think how we can limit capturing: time, count, filter, etc. It's your choice.
+  8. Advanced: Capturing on multiple interfaces will be a bonus, but only if you can do this in parallel. No reason to do this sequentially.
+
+Expected usage:
+  1. Open 2 terminals:
+  2. Start capture in the 1st one: python your_script.py eth0 capture
+  3. Send packet: python your_script.py eth0 send
+  4. On the 1st terminal, capture should print captured packets.
+
+Note: Do not use scapy.sr(). It's for other purposes.
