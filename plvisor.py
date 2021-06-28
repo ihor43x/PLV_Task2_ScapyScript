@@ -38,5 +38,5 @@ if __name__ == '__main__':
     elif args.action == "capture":
         p1.capture()
 
-    # print(p1.iface)
-    # print(p1.action)
+    print(p1.iface)
+    print(p1.action)
