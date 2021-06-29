@@ -83,7 +83,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plvisor.py" />
-      <option name="PARAMETERS" value="lo send" />
+      <option name="PARAMETERS" value="lo,wlp0s20f3 capture" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -114,8 +114,8 @@
     </configuration>
     <list>
       <item itemvalue="Python.main" />
-      <item itemvalue="Python.python_sniffer_1" />
       <item itemvalue="Python.plvisor" />
+      <item itemvalue="Python.python_sniffer_1" />
     </list>
     <recent_temporary>
       <list>
@@ -168,5 +168,18 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="iface" />
+        <watch expression="t" />
+        <watch expression="threads" />
+        <watch expression="p" />
+        <watch expression="args.action" />
+        <watch expression="results" />
+        <watch expression="f" />
+        <watch expression="ports" />
+        <watch expression="port" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

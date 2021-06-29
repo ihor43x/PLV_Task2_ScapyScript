@@ -1,24 +1,29 @@
+from scapy.all import *
 import argparse
-from scapy.all import sendp, send, sniff, IP, ICMP, get_if_list
+import concurrent.futures
 
-
-# import scapy.all as scapy
 
 class Port:
+    """Class for sending and capturing ICMP requests via specific interface"""
 
     def __init__(self, iface):
         self.iface = iface
-        # self.action = action
+        self.iface_ip = get_if_addr(iface)
+        self.router_ip = conf.route.route("0.0.0.0")[2]
 
-    def send_icmp(self, count=5, inter=1, loop=1) -> bool:
-        # p = send(IP(dst="127.0.0.1") / ICMP(), count=count, inter=inter, loop=loop)
-        # p = send(IP(dst="192.168.1.1") / ICMP(), count=count, inter=inter, loop=loop)
-        p = send(IP(dst="8.8.8.8") / ICMP(), count=count, inter=inter, loop=loop)
-        return p
+    def send_icmp(self, count=20, inter=1):
+        pkt = Ether() / IP(src=self.iface_ip, dst=self.router_ip, ttl=64) / ICMP() / "Hi, Scapy!"
+        sendp(pkt, iface=self.iface, count=count, inter=inter)
+        return None
 
-    def capture(self, timeout=10) -> list:
-        packets = sniff(iface=self.iface, filter="icmp", timeout=timeout, prn=lambda x: x.summary())
-        return [p.summary() for p in packets]
+    def capture(self, timeout=20, filter="icmp") -> list:
+        # for more fancy output: prn=lambda x: f'{x[IP].src} > {x[IP].dst} : {str(x[Raw].load)}')
+        packets = sniff(iface=self.iface,
+                        timeout=timeout,
+                        filter="icmp",
+                        lfilter=lambda p: p.haslayer(Raw) and b"Hi, Scapy!" in p[Raw].load,
+                        prn=lambda x: x.summary())
+        return packets
 
 
 if __name__ == '__main__':
@@ -26,17 +31,18 @@ if __name__ == '__main__':
     parser.add_argument("interface")
     parser.add_argument("action")
     args = parser.parse_args()
-    p1 = Port(args.interface)
 
     ifaces = get_if_list()
-    if args.interface not in ifaces:
-        print(f"There is no such interface: {args.interface}")
-        exit()
+    input_ifaces = args.interface.split(",")
 
-    if args.action == "send":
-        p1.send_icmp()
-    elif args.action == "capture":
-        p1.capture()
+    ports = [Port(iface) for iface in input_ifaces if iface in ifaces]
 
-    print(p1.iface)
-    print(p1.action)
+    # Parallel sending/capturing
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        if args.action == "send":
+            threads = [executor.submit(port.send_icmp) for port in ports]
+        elif args.action == "capture":
+            threads = [executor.submit(port.capture) for port in ports]
+
+        for f in concurrent.futures.as_completed(threads):
+            f.result()
